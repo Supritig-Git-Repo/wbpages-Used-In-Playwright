@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JavaScript Primitive Data Types</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>JavaScript Primitive Data Types</h1>
+    <p>Edit the table below or upload a file to replace it</p>
+  </header>
+
+  <section class="controls">
+    <button onclick="exportTable()">Export CSV</button>
+    <input type="file" id="fileInput" accept=".csv" />
+  </section>
+
+  <section>
+    <table id="dataTable" contenteditable="true">
+      <thead>
+         <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>String</td>
+        <td>Represents text</td>
+        <td>"hello"</td>
+      </tr>
+      <tr>
+        <td>Number</td>
+        <td>Represents numeric values (both integers and floating-point)</td>
+        <td>42, 3.14, -7</td>
+      </tr>
+      <tr>
+        <td>BigInt</td>
+        <td>For very large integers beyond Number.MAX_SAFE_INTEGER</td>
+        <td>1234567890123456789n</td>
+      </tr>
+      <tr>
+        <td>Boolean</td>
+        <td>Represents true/false</td>
+        <td>true, false</td>
+      </tr>
+      <tr>
+        <td>Undefined</td>
+        <td>A variable that has been declared but not assigned a value</td>
+        <td><code>let x;</code> // x is undefined</td>
+      </tr>
+      <tr>
+        <td>Null</td>
+        <td>Represents intentional absence of any object value</td>
+        <td><code>let x = null;</code></td>
+      </tr>
+      <tr>
+        <td>Symbol</td>
+        <td>Unique and immutable value, mainly used as object keys</td>
+        <td><code>Symbol("id")</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    <p>This is for educational purpose created by Supriti Ghosh</p>
+  </footer>
+
+  <script>
+    function exportTable() {
+      const table = document.getElementById("dataTable");
+      let csv = [];
+      for (let row of table.rows) {
+        let rowData = [];
+        for (let cell of row.cells) {
+          rowData.push(cell.innerText.replace(/,/g, ''));
+        }
+        csv.push(rowData.join(","));
+      }
+      const csvData = new Blob([csv.join("\n")], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(csvData);
+      link.download = "table_data.csv";
+      link.click();
+    }
+
+    document.getElementById("fileInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const lines = e.target.result.split("\n");
+        const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+        table.innerHTML = ""; // Clear existing rows
+        for (let i = 0; i < lines.length; i++) {
+          const cells = lines[i].split(",");
+          if (cells.length >= 3) {
+            const row = table.insertRow();
+            cells.forEach(cell => {
+              const newCell = row.insertCell();
+              newCell.textContent = cell.trim();
+            });
+          }
+        }
+      };
+      reader.readAsText(file);
+    });
+  </script>
+
+</body>
+<style>body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  padding: 20px;
+  margin: 0;
+}
+
+header {
+  background-color: #263238;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  border-radius: 6px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+p {
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.controls {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.controls button,
+.controls input[type="file"] {
+  padding: 10px 15px;
+  margin: 5px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.controls button {
+  background-color: #1976d2;
+  color: white;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background-color: #1565c0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+table, th, td {
+  border: 1px solid #ccc;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+
+thead {
+  background-color: #546e7a;
+  color: white;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-style: italic;
+  color: #777;
+}
+</style>
+</html>
