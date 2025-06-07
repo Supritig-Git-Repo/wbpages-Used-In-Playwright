@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Product Inventory</h1>
+    <p>upload a file to update data</p>
+  </header>
+
+  <section class="controls">
+    <button onclick="exportTable()">Export CSV</button>
+    <input type="file" id="fileInput" accept=".csv" />
+  </section>
+
+  <section>
+    <table id="dataTable" contenteditable="false">
+      <thead>
+         <tr>
+        <th>Sr. No.</th>
+        <th>Product</th>
+        <th>Variant</th>
+        <th>Color</th>
+        <th>Discount</th>
+        <th>Actual Price</th>
+        <th>Selling Price</th>
+        <th>Available Units</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Samsung Galaxy S23</td>
+        <td>128GB</td>
+        <td>Phantom Black</td>
+        <td>10%</td>
+        <td>$799</td>
+        <td>$719</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Samsung Galaxy S23</td>
+        <td>256GB</td>
+        <td>Cream</td>
+        <td>8%</td>
+        <td>$899</td>
+        <td>$827</td>
+        <td>35</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Samsung Galaxy S23+</td>
+        <td>256GB</td>
+        <td>Green</td>
+        <td>12%</td>
+        <td>$999</td>
+        <td>$879</td>
+        <td>40</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Samsung Galaxy S23 Ultra</td>
+        <td>512GB</td>
+        <td>Phantom Black</td>
+        <td>15%</td>
+        <td>$1,199</td>
+        <td>$1,019</td>
+        <td>20</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Samsung Galaxy S23 Ultra</td>
+        <td>1TB</td>
+        <td>Green</td>
+        <td>18%</td>
+        <td>$1,399</td>
+        <td>$1,147</td>
+        <td>10</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    <p>This is for educational purpose created by Supriti Ghosh</p>
+  </footer>
+
+  <script>
+    function exportTable() {
+      const table = document.getElementById("dataTable");
+      let csv = [];
+      for (let row of table.rows) {
+        let rowData = [];
+        for (let cell of row.cells) {
+          rowData.push(cell.innerText.replace(/,/g, ''));
+        }
+        csv.push(rowData.join(","));
+      }
+      const csvData = new Blob([csv.join("\n")], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(csvData);
+      link.download = "table_data.csv";
+      link.click();
+    }
+
+    document.getElementById("fileInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const lines = e.target.result.split("\n");
+        const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+        table.innerHTML = ""; // Clear existing rows
+        for (let i = 0; i < lines.length; i++) {
+          const cells = lines[i].split(",");
+          if (cells.length >= 3) {
+            const row = table.insertRow();
+            cells.forEach(cell => {
+              const newCell = row.insertCell();
+              newCell.textContent = cell.trim();
+            });
+          }
+        }
+      };
+      reader.readAsText(file);
+    });
+  </script>
+
+</body>
+<style>body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  padding: 20px;
+  margin: 0;
+}
+
+header {
+  background-color: #263238;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  border-radius: 6px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+p {
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.controls {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.controls button,
+.controls input[type="file"] {
+  padding: 10px 15px;
+  margin: 5px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.controls button {
+  background-color: #1976d2;
+  color: white;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background-color: #1565c0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+table, th, td {
+  border: 1px solid #ccc;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+
+thead {
+  background-color: #546e7a;
+  color: white;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-style: italic;
+  color: #777;
+}
+</style>
+</html>
