@@ -9,12 +9,12 @@
 <body>
 
   <header>
-    <h1>Product Inventory</h1>
+    <h1>Product Inventory of Samsung s23</h1>
     <p>upload a file to update data</p>
   </header>
 
   <section class="controls">
-    <button onclick="exportTable()">Export CSV</button>
+    <button onclick="exportTable()">Export</button>
     <input type="file" id="fileInput" accept=".csv" />
   </section>
 
@@ -91,47 +91,40 @@
     <p>This is for educational purpose created by Supriti Ghosh</p>
   </footer>
 
-  <script>
-    function exportTable() {
-      const table = document.getElementById("dataTable");
-      let csv = [];
-      for (let row of table.rows) {
-        let rowData = [];
-        for (let cell of row.cells) {
-          rowData.push(cell.innerText.replace(/,/g, ''));
+ <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+<script>
+  function exportTable() {
+    const table = document.getElementById("dataTable");
+    const worksheet = XLSX.utils.table_to_sheet(table);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
+    XLSX.writeFile(workbook, "table_data.xlsx");
+  }
+
+  document.getElementById("fileInput").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const lines = e.target.result.split("\n");
+      const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+      table.innerHTML = ""; // Clear existing rows
+      for (let i = 0; i < lines.length; i++) {
+        const cells = lines[i].split(",");
+        if (cells.length >= 3) {
+          const row = table.insertRow();
+          cells.forEach(cell => {
+            const newCell = row.insertCell();
+            newCell.textContent = cell.trim();
+          });
         }
-        csv.push(rowData.join(","));
       }
-      const csvData = new Blob([csv.join("\n")], { type: "text/csv" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(csvData);
-      link.download = "table_data.csv";
-      link.click();
-    }
-
-    document.getElementById("fileInput").addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const lines = e.target.result.split("\n");
-        const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
-        table.innerHTML = ""; // Clear existing rows
-        for (let i = 0; i < lines.length; i++) {
-          const cells = lines[i].split(",");
-          if (cells.length >= 3) {
-            const row = table.insertRow();
-            cells.forEach(cell => {
-              const newCell = row.insertCell();
-              newCell.textContent = cell.trim();
-            });
-          }
-        }
-      };
-      reader.readAsText(file);
-    });
-  </script>
+    };
+    reader.readAsText(file);
+  });
+</script>
 
 </body>
 <style>body {
