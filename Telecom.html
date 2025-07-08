@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Telecom Number Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SheetJS Library for Excel export/import -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -78,7 +80,6 @@
           <td>+1 2025550183</td>
           <td>USA</td>
           <td>Inactive</td>
-
         </tr>
         <tr>
           <td>3</td>
@@ -102,48 +103,50 @@
   </div>
 
   <script>
-  function exportData() {
-    const table = document.querySelector("table");
-    const rows = Array.from(table.rows);
-    const csvContent = rows.map(row =>
-      Array.from(row.cells).map(cell => `"${cell.innerText}"`).join(",")
-    ).join("\n");
+    function exportData() {
+      const table = document.querySelector("table");
+      const wb = XLSX.utils.book_new();
+      const ws_data = [];
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "telecom_data.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+      for (let row of table.rows) {
+        const rowData = [];
+        for (let cell of row.cells) {
+          rowData.push(cell.innerText);
+        }
+        ws_data.push(rowData);
+      }
 
-  document.getElementById("fileUpload").addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "TelecomData");
+      XLSX.writeFile(wb, "telecom_data.xlsx");
+    }
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const lines = e.target.result.trim().split("\n");
-      const tableBody = document.querySelector("table tbody");
-      tableBody.innerHTML = ""; // Clear existing rows
+    document.getElementById("fileUpload").addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
 
-      lines.forEach((line, index) => {
-        const cells = line.split(",");
-        const row = document.createElement("tr");
-        cells.forEach(cell => {
-          const td = document.createElement("td");
-          td.innerText = cell.replace(/^\"|\"$/g, "");
-          row.appendChild(td);
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+        const tableBody = document.querySelector("table tbody");
+        tableBody.innerHTML = "";
+
+        rows.slice(1).forEach(row => {
+          const tr = document.createElement("tr");
+          row.forEach(cellValue => {
+            const td = document.createElement("td");
+            td.textContent = cellValue || "";
+            tr.appendChild(td);
+          });
+          tableBody.appendChild(tr);
         });
-        tableBody.appendChild(row);
-      });
-    };
-    reader.readAsText(file);
-  });
-</script>
-
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
 </body>
 </html>
-
