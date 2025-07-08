@@ -102,10 +102,48 @@
   </div>
 
   <script>
-    function exportData() {
-      alert("Export feature is not implemented in this demo.");
-    }
-  </script>
+  function exportData() {
+    const table = document.querySelector("table");
+    const rows = Array.from(table.rows);
+    const csvContent = rows.map(row =>
+      Array.from(row.cells).map(cell => `"${cell.innerText}"`).join(",")
+    ).join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "telecom_data.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById("fileUpload").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const lines = e.target.result.trim().split("\n");
+      const tableBody = document.querySelector("table tbody");
+      tableBody.innerHTML = ""; // Clear existing rows
+
+      lines.forEach((line, index) => {
+        const cells = line.split(",");
+        const row = document.createElement("tr");
+        cells.forEach(cell => {
+          const td = document.createElement("td");
+          td.innerText = cell.replace(/^\"|\"$/g, "");
+          row.appendChild(td);
+        });
+        tableBody.appendChild(row);
+      });
+    };
+    reader.readAsText(file);
+  });
+</script>
+
 </body>
 </html>
 
